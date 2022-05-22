@@ -1,0 +1,3 @@
+/home/felix/CLionProjects/VirtualCPU/cmake-build-debug/CMakeFiles/VirtualCPU.dir
+/home/felix/CLionProjects/VirtualCPU/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/felix/CLionProjects/VirtualCPU/cmake-build-debug/CMakeFiles/rebuild_cache.dir
