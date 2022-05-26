@@ -49,6 +49,9 @@ void ALU<T>::update() {
             } else {
                 flag_carry = false;
             }
+            if(input1->value + input2->value == 0 || input1->value - input2->value == 0) {
+                flag_zero = true;
+            }
         }
     }
     if(enable) {

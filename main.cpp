@@ -107,9 +107,7 @@ void buildup(){
 
 
     flagregister.addFlag(&alu.flag_carry);
-
-
-
+    flagregister.addFlag(&alu.flag_zero);
 
 
 
