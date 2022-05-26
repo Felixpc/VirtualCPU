@@ -125,7 +125,7 @@ void Controller<T, c, ControllWordType>::tick() {
 
 
     setControllBits(instructionset[flag_n][(instructionRegister->value>>4)][stepcounter]);
-    printf("step: %d\n",stepcounter);
+    //printf("step: %d\n",stepcounter);
     stepcounter++;
     if(stepcounter==5)
         stepcounter=0;

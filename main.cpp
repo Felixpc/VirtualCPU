@@ -68,14 +68,14 @@ void buildup(){
     instruction_register.busmaskOut=0x0F;
     pc.busmaskOut=0x0F;
 
-    ram.set(new uint8_t[16]{0b01011010,
-                                0b01001111,
-                                0b01010000,
+    ram.set(new uint8_t[16]{0b11100000,
                                 0b00101111,
+                                0b01110100,
+                                0b01100000,
+                                0b00111111,
                                 0b11100000,
-                                0b01110111,
-                                0b01100011,
-                                0b11110000,
+                                0b10000000,
+                                0b01100100,
                                 0x00,
                                 0x00,
                                 0x00,
@@ -236,7 +236,8 @@ while(true) {
 
     update();
 
-    print();
+    //print();
+    printf("out: %d\n", reg_out.value);
     usleep(10000);
 if(clock1.halted)break;
 }

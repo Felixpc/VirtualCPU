@@ -51,6 +51,8 @@ void ALU<T>::update() {
             }
             if(input1->value + input2->value == 0 || input1->value - input2->value == 0) {
                 flag_zero = true;
+            }else{
+                flag_zero = false;
             }
         }
     }
