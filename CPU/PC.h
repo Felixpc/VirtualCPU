@@ -25,9 +25,9 @@ void PC<T>::tick() {
     if(counterenable){
         value++;
     }
-    if(enable) {
+    /*if(enable) {
         this->bus->value|=value;
-    }
+    }*/
     if(load){
         value=this->bus->value;
     }

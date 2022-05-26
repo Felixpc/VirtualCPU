@@ -12,8 +12,8 @@ template<typename T, typename addrtype, int depth>
 class RAM : public Block<T>{
 public:
 
-    Register<addrtype> addressRegister;
 
+    Register<addrtype> addressRegister;
     void tick() override;
     void update() override;
     void set(const T m[depth]);
@@ -27,18 +27,20 @@ private:
 template<typename T, typename addrtype, int depth>
 void RAM<T, addrtype, depth>::tick() {
     if(enable) {
-        this->bus->value|=data[addressRegister.value];
+        this->bus->value|=(data[addressRegister.value]&this->busmaskOut);
     }
     if(load) {
-        data[addressRegister.value]=this->bus->value;
+        data[addressRegister.value]=(this->bus->value&this->busmaskIn);
     }
+    addressRegister.tick();
 }
 
 template<typename T, typename addrtype, int depth>
 void RAM<T, addrtype, depth>::update() {
     if(enable) {
-        this->bus->value|=data[addressRegister.value];
+        this->bus->value|=(data[addressRegister.value]&this->busmaskOut);
     }
+    addressRegister.update();
 }
 
 template<typename T, typename addrtype, int depth>

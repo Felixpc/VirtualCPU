@@ -1,10 +1,11 @@
-#include <iostream>
+#include <cstdio>
 #include "CPU/bus/Bus.h"
 #include "CPU/Register.h"
 #include "CPU/Clock.h"
 #include "CPU/ALU.h"
 #include "CPU/RAM.h"
 #include "CPU/PC.h"
+#include "CPU/Controller.h"
 
 Bus<uint8_t> bus=Bus<uint8_t>();
 
@@ -12,6 +13,8 @@ Clock<uint8_t> clock1=Clock<uint8_t>();
 
 Register<uint8_t> reg_A;
 Register<uint8_t> reg_B;
+Register<uint8_t> reg_out;
+
 
 Register<uint8_t> instruction_register;
 
@@ -21,11 +24,13 @@ RAM<uint8_t, uint8_t, 16> ram;
 
 PC<uint8_t> pc;
 
-void update(){
-    bus.value=0x00;
+Controller<uint8_t, 15> controller;
 
+void update(){
+   // controller.update();
     reg_A.update();
     reg_B.update();
+    reg_out.update();
     alu.update();
     ram.update();
     instruction_register.update();
@@ -33,12 +38,18 @@ void update(){
 }
 
 void buildup(){
+    clock1.addBlockhalf(&controller);
+
     clock1.addBlock(&alu);
     clock1.addBlock(&reg_A);
     clock1.addBlock(&reg_B);
+    clock1.addBlock(&reg_out);
     clock1.addBlock(&ram);
     clock1.addBlock(&instruction_register);
     clock1.addBlock(&pc);
+
+
+
 
     reg_A.setBus(&bus);
     reg_B.setBus(&bus);
@@ -47,9 +58,15 @@ void buildup(){
     ram.setBus(&bus);
     instruction_register.setBus(&bus);
     pc.setBus(&bus);
+    reg_out.setBus(&bus);
 
-    ram.set(new uint8_t[16]{0x07,
-                                0x08,
+    ram.addressRegister.busmaskIn=0x0F;
+    instruction_register.busmaskOut=0x0F;
+    pc.busmaskOut=0x0F;
+
+    ram.set(new uint8_t[16]{0b00011110,//LDA
+                                0b00101111,//ADD
+                                0b11100000,//OUT
                                 0x00,
                                 0x00,
                                 0x00,
@@ -61,26 +78,132 @@ void buildup(){
                                 0x00,
                                 0x00,
                                 0x00,
-                                0x00,
-                                0x00,
+                                0x11,
                                 0x00
     });
+
+    controller.defineControllBits(new bool *[15]{
+            &clock1.halted,//HLT
+            &ram.addressRegister.load,//MI
+            &ram.load,//RI
+            &ram.enable,//RO
+            &instruction_register.enable,//IO
+            &instruction_register.load,//II
+            &reg_A.load,//AI
+            &reg_A.enable,//AO
+            &alu.enable,//EO
+            &alu.subtract,//SU
+            &reg_B.load,//BI
+            &reg_out.load,//OI
+            &pc.counterenable,//CE
+            &pc.enable,//CO
+            &pc.load,//J
+    });
+
+
+
+
+
 
 
     alu.input1=&reg_A;
     alu.input2=&reg_B;
+
+    controller.instructionRegister=&instruction_register;
 
     alu.output.setBus(&bus);
 
 
 }
 
-
+void print(){
+    printf("\n---------------------------------\n");
+    printf("controll word: ");
+    for(int i=0;i<15;i++){
+        printf("%d", *controller.controllbits[i]);
+    }
+    printf("\n");
+    printf("ins %d\n", instruction_register.value);
+    printf("A %d\n", reg_A.value);
+    printf("B %d\n", reg_B.value);
+    printf("out %d\n", reg_out.value);
+    printf("pc %d\n", pc.value);
+    printf("bus %d\n", bus.value);
+    printf("memo address %d\n", ram.addressRegister.value);
+    printf("ram %d\n", ram.data[ram.addressRegister.value]);
+    printf("---------------------------------\n");
+}
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+
 
     buildup();
 
+
+    controller.setControllBits(controller.instructionset[0][0]);
+
+    update();
+    clock1.tickhalf();
+    update();
+    clock1.tick();
+    update();
+
+    print();
+
+    controller.setControllBits(controller.instructionset[0][1]);
+
+    update();
+    clock1.tickhalf();
+    update();
+    clock1.tick();
+    update();
+
+    print();
+
+    controller.setControllBits(controller.instructionset[1][2]);
+
+    update();
+    clock1.tickhalf();
+    update();
+    clock1.tick();
+    update();
+
+    print();
+
+
+    controller.setControllBits(controller.instructionset[0][3]);
+    bus.value=0;
+
+    update();
+    clock1.tickhalf();
+    update();
+    clock1.tick();
+    update();
+
+    print();
+
+/*
+for(int i=0;i<16;i++) {
+    ///bus.value=0x00;
+    update();
+    clock1.tick();
+    update();
+    for(int i=0;i<15;i++){
+        printf("%d", *controller.controllbits[i]);
+    }
+    printf("\n");
+    printf("ins %d\n", instruction_register.value);
+    printf("A %d\n", reg_A.value);
+    printf("B %d\n", reg_B.value);
+    printf("out %d\n", reg_out.value);
+    printf("pc %d\n", pc.value);
+    printf("bus %d\n", bus.value);
+    printf("memo address %d\n", ram.addressRegister.value);
+    printf("ram %d\n", ram.data[ram.addressRegister.value]);
+
+}
+
+*/
+/*
     reg_A.enable=false;
     reg_B.enable=false;
     reg_A.load=false;
@@ -91,6 +214,7 @@ int main() {
     instruction_register.load=false;
 
     ram.addressRegister.enable=false;
+
     ram.enable=false;
     ram.addressRegister.load=false;
     ram.load=false;
@@ -118,11 +242,12 @@ int main() {
     update();
     clock1.tick();
     update();
-
-    printf("A: 0x%02X\n", reg_A.value);
+        printf("A: 0x%02X\n", reg_A.value);
     printf("B: 0x%02X\n", reg_B.value);
     printf("alu: 0x%02X\n", alu.output.value);
     printf("ram5: 0x%02X\n", ram.data[5]);
+*/
+
 
 
 /*

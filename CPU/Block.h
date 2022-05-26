@@ -11,6 +11,8 @@ public:
     virtual void tick() = 0;
     virtual void update() = 0;
     Bus<T> *bus;
+    T busmaskIn=0xFF;
+    T busmaskOut=0xFF;
     void setBus(Bus<T> *bus);
 };
 

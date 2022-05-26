@@ -23,18 +23,18 @@ private:
 
 template<typename T>
 void Register<T>::tick() {
-    if(enable) {
-        this->bus->value|=value;
-    }
+   /* if(enable) {
+        this->bus->value|=(value&this->busmaskOut);
+    }*/
     if(load){
-        value=this->bus->value;
+        value=(this->bus->value&this->busmaskIn);
     }
 }
 
 template<typename T>
 void Register<T>::update() {
     if(enable) {
-        this->bus->value|=value;
+        this->bus->value|=(value&this->busmaskOut);
     }
 }
 
