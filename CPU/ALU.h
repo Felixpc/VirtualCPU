@@ -22,6 +22,11 @@ public:
     bool enable=false;
     bool subtract=false;
 
+    bool flag_carry=false;
+    bool flag_zero=false;
+
+    bool updateflags=false;
+
     void tick() override;
     void update() override;
 private:
@@ -38,6 +43,13 @@ void ALU<T>::update() {
         output.value=(input1->value - input2->value);
     }else{
         output.value=(input1->value + input2->value);
+        if(updateflags) {
+            if ((input1->value + input2->value) > 255) {
+                flag_carry = true;
+            } else {
+                flag_carry = false;
+            }
+        }
     }
     if(enable) {
         output.enable=true;

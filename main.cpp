@@ -7,6 +7,7 @@
 #include "CPU/RAM.h"
 #include "CPU/PC.h"
 #include "CPU/Controller.h"
+#include "CPU/FlagRegister.h"
 
 Bus<uint8_t> bus=Bus<uint8_t>();
 
@@ -15,7 +16,7 @@ Clock<uint8_t> clock1=Clock<uint8_t>();
 Register<uint8_t> reg_A;
 Register<uint8_t> reg_B;
 Register<uint8_t> reg_out;
-
+Register<uint8_t> reg_flags;
 
 Register<uint8_t> instruction_register;
 
@@ -23,9 +24,11 @@ ALU<uint8_t> alu;
 
 RAM<uint8_t, uint8_t, 16> ram;
 
+FlagRegister flagregister;
+
 PC<uint8_t> pc;
 
-Controller<uint8_t, 15> controller;
+Controller<uint8_t, 16, uint16_t> controller;
 
 void update(){
    // controller.update();
@@ -65,14 +68,14 @@ void buildup(){
     instruction_register.busmaskOut=0x0F;
     pc.busmaskOut=0x0F;
 
-    ram.set(new uint8_t[16]{0b01010011,
+    ram.set(new uint8_t[16]{0b01011010,
                                 0b01001111,
                                 0b01010000,
                                 0b00101111,
                                 0b11100000,
+                                0b01110111,
                                 0b01100011,
-                                0x00,
-                                0x00,
+                                0b11110000,
                                 0x00,
                                 0x00,
                                 0x00,
@@ -83,7 +86,7 @@ void buildup(){
                                 5
     });
 
-    controller.defineControllBits(new bool *[15]{
+    controller.defineControllBits(new bool *[16]{
             &clock1.halted,//HLT
             &ram.addressRegister.load,//MI
             &ram.load,//RI
@@ -99,8 +102,11 @@ void buildup(){
             &pc.counterenable,//CE
             &pc.enable,//CO
             &pc.load,//J
+            &alu.updateflags,//FI
     });
 
+
+    flagregister.addFlag(&alu.flag_carry);
 
 
 
@@ -109,6 +115,9 @@ void buildup(){
 
     alu.input1=&reg_A;
     alu.input2=&reg_B;
+
+
+    //alu.flagsRegister=&reg_flags;
 
     controller.instructionRegister=&instruction_register;
 
@@ -219,6 +228,7 @@ int main() {
 while(true) {
     bus.value=0x00;
     update();
+    controller.flag_n=flagregister.getflag_n();
     clock1.tickhalf();
     bus.value=0x00;
 
@@ -233,88 +243,6 @@ while(true) {
 if(clock1.halted)break;
 }
 printf("\n------------\nHLT\n");
-
-
-/*
-    reg_A.enable=false;
-    reg_B.enable=false;
-    reg_A.load=false;
-    reg_B.load=false;
-    alu.enable=false;
-
-    instruction_register.enable=false;
-    instruction_register.load=false;
-
-    ram.addressRegister.enable=false;
-
-    ram.enable=false;
-    ram.addressRegister.load=false;
-    ram.load=false;
-
-    ram.addressRegister.value=0x01;
-
-
-    ram.enable=true;
-    reg_A.load=true;
-
-    pc.counterenable=true;
-
-    update();
-    clock1.tick();
-    update();
-    pc.counterenable=false;
-
-    ram.enable=false;
-    reg_A.load=false;
-
-    pc.enable=true;
-    ram.addressRegister.value=0x05;
-    ram.load=true;
-
-    update();
-    clock1.tick();
-    update();
-        printf("A: 0x%02X\n", reg_A.value);
-    printf("B: 0x%02X\n", reg_B.value);
-    printf("alu: 0x%02X\n", alu.output.value);
-    printf("ram5: 0x%02X\n", ram.data[5]);
-*/
-
-
-
-/*
-    reg_A.value=0x02;
-
-    reg_A.enable=true;
-    reg_B.load=true;
-
-
-    update();
-    clock1.tick();
-    update();
-
-    printf("A: 0x%02X\n", reg_A.value);
-    printf("B: 0x%02X\n", reg_B.value);
-    printf("alu: 0x%02X\n", alu.output.value);
-
-    printf("bus: 0x%02X\n", bus.value);
-
-    reg_A.enable=false;
-    reg_B.load=false;
-    reg_B.enable=false;
-    reg_A.load=true;
-    alu.enable=true;
-
-    update();
-    clock1.tick();
-    update();
-
-    printf("A: 0x%02X\n", reg_A.value);
-    printf("B: 0x%02X\n", reg_B.value);
-    printf("alu: 0x%02X\n", alu.output.value);
-
-    printf("bus: 0x%02X\n", bus.value);
-*/
 
     return 0;
 }
