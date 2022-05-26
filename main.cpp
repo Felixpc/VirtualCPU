@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <atomic>
 #include "CPU/bus/Bus.h"
 #include "CPU/Register.h"
 #include "CPU/Clock.h"
@@ -64,9 +65,12 @@ void buildup(){
     instruction_register.busmaskOut=0x0F;
     pc.busmaskOut=0x0F;
 
-    ram.set(new uint8_t[16]{0b00011110,//LDA
-                                0b00101111,//ADD
-                                0b11100000,//OUT
+    ram.set(new uint8_t[16]{0b01010011,
+                                0b01001111,
+                                0b01010000,
+                                0b00101111,
+                                0b11100000,
+                                0b01100011,
                                 0x00,
                                 0x00,
                                 0x00,
@@ -74,12 +78,9 @@ void buildup(){
                                 0x00,
                                 0x00,
                                 0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x00,
-                                0x11,
-                                0x00
+                                7,
+                                6,
+                                5
     });
 
     controller.defineControllBits(new bool *[15]{
@@ -138,7 +139,7 @@ int main() {
 
     buildup();
 
-
+/*
     controller.setControllBits(controller.instructionset[0][0]);
 
     update();
@@ -170,7 +171,7 @@ int main() {
     print();
 
 
-    controller.setControllBits(controller.instructionset[0][3]);
+    controller.setControllBits(controller.instructionset[1][3]);
     bus.value=0;
 
     update();
@@ -181,28 +182,59 @@ int main() {
 
     print();
 
-/*
-for(int i=0;i<16;i++) {
-    ///bus.value=0x00;
+    controller.setControllBits(controller.instructionset[1][4]);
+    bus.value=0;
+
+    update();
+    clock1.tickhalf();
     update();
     clock1.tick();
     update();
-    for(int i=0;i<15;i++){
-        printf("%d", *controller.controllbits[i]);
-    }
-    printf("\n");
-    printf("ins %d\n", instruction_register.value);
-    printf("A %d\n", reg_A.value);
-    printf("B %d\n", reg_B.value);
-    printf("out %d\n", reg_out.value);
-    printf("pc %d\n", pc.value);
-    printf("bus %d\n", bus.value);
-    printf("memo address %d\n", ram.addressRegister.value);
-    printf("ram %d\n", ram.data[ram.addressRegister.value]);
 
-}
+    print();
 
+    controller.setControllBits(controller.instructionset[2][0]);
+    bus.value=0;
+
+    update();
+    clock1.tickhalf();
+    update();
+    clock1.tick();
+    update();
+
+    print();
+
+    controller.setControllBits(controller.instructionset[2][1]);
+    bus.value=0;
+
+    update();
+    clock1.tickhalf();
+    update();
+    clock1.tick();
+    update();
+
+    print();
 */
+
+while(true) {
+    bus.value=0x00;
+    update();
+    clock1.tickhalf();
+    bus.value=0x00;
+
+    update();
+    clock1.tick();
+    bus.value=0x00;
+
+    update();
+
+    print();
+    usleep(10000);
+if(clock1.halted)break;
+}
+printf("\n------------\nHLT\n");
+
+
 /*
     reg_A.enable=false;
     reg_B.enable=false;

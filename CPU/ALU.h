@@ -44,7 +44,7 @@ void ALU<T>::update() {
     }else{
         output.enable=false;
     }
-    output.tick();
+    output.update();
 }
 
 #endif //VIRTUALCPU_ALU_H
