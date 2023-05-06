@@ -11,5 +11,3 @@ The program is stored in RAM, which is addressed by the instruction counter. The
 
 I have built the software modularly to make it universally adaptable. My goal was to understand the basic functions of a processor, and I was fascinated by breadboard computers. I wanted to build such a computer myself, but the hardware implementation was too cumbersome for me. Therefore, I decided to develop a simulation to understand the basics of computer architecture and machine learning.
 
-By simulating a simple processor, I have understood the basic functions of a processor and learned how they work together to create a computer architecture. It has also improved my programming and simulation skills and deepened my understanding of how hardware and software work. If I want to expand my simulation, I can add more features and components to increase complexity and expand my understanding.
-
