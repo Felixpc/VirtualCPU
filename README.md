@@ -9,5 +9,5 @@ I have written a simulation of a simple 8-bit CPU in C. The processor's architec
 
 The program is stored in RAM, which is addressed by the instruction counter. The current instruction is stored in RAM, and the first four bits of the instruction contain a command, while the remaining 4 bits are data. The various components of the processor can place their data on the bus while another component reads information from the bus.
 
-I have built the software modularly to make it universally adaptable. My goal was to understand the basic functions of a processor, and I was fascinated by breadboard computers. I wanted to build such a computer myself, but the hardware implementation was too cumbersome for me. Therefore, I decided to develop a simulation to understand the basics of computer architecture and machine learning.
+I have built the software modularly to make it universally adaptable. My goal was to understand the basic functions of a processor, and I was fascinated by breadboard computers. I wanted to build such a computer myself, but the hardware implementation was too cumbersome for me. Therefore, I decided to develop a simulation to understand the basics of computer architecture.
 
